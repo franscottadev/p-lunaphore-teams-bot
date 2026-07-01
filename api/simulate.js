@@ -15,6 +15,11 @@ function buildFakeRef(userId, userName) {
 }
 
 export default async function handler(req, res) {
+  const token = (req.headers['authorization'] ?? '').replace('Bearer ', '');
+  if (!token || token !== process.env.NOTIFY_SECRET) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
   if (req.method === 'GET') {
     return res.status(200).json({
       usage: 'POST /api/simulate',

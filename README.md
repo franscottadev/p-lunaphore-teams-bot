@@ -55,22 +55,32 @@ Key point: the bot **never replies synchronously** to a Teams message. It saves 
 | Variable | Purpose |
 |---|---|
 | `MicrosoftAppId` | Azure App Registration application (client) ID |
-| `MicrosoftAppPassword` | Azure App Registration client secret |
+| `MicrosoftAppPassword` | Azure App Registration client secret **value** (not the Secret ID) |
+| `MicrosoftAppTenantId` | Azure tenant ID — required when the App Registration is Single Tenant |
 | `MAKE_WEBHOOK_URL` | Make.com scenario webhook that receives incoming Teams messages |
-| `NOTIFY_SECRET` | Shared secret Make must send as `Authorization: Bearer <secret>` when calling back `/api/notify` |
+| `NOTIFY_SECRET` | Shared secret required as `Authorization: Bearer <secret>` on both `/api/notify` (called by Make) and `/api/simulate` (dev testing) |
 | `KV_REST_API_URL` | Upstash Redis REST URL |
 | `KV_REST_API_TOKEN` | Upstash Redis REST token |
 
 ## Setup
 
-1. **Azure App Registration** (Entra ID → App registrations → New registration) — gives you `MicrosoftAppId` + client secret (`MicrosoftAppPassword`).
-2. **Azure Bot resource** — create it, link the existing App Registration, add the Microsoft Teams channel.
+Full step-by-step walkthrough (Azure App Registration, Bot resource, Teams manifest, sideload, production rollout) is in **[SETUP.md](./SETUP.md)**.
+
+Quick summary:
+
+1. **Azure App Registration** — gives you `MicrosoftAppId` + client secret (`MicrosoftAppPassword`).
+2. **Azure Bot resource** — create it, link the App Registration, add the Microsoft Teams channel.
 3. **Upstash Redis** — create a database, copy REST URL/token.
 4. **Deploy to Vercel** — set all env vars above in the project settings, deploy.
 5. **Wire the endpoint** — set the Azure Bot's messaging endpoint to `https://<your-domain>/api/messages`.
 6. **Make.com scenario** — set its incoming webhook URL as `MAKE_WEBHOOK_URL`, and configure the scenario to call `POST https://<your-domain>/api/notify` with the AI response once done.
+7. **Teams manifest + sideload** — package `teamsAppManifest/` into a zip, upload as a custom app in Teams.
 
 ## Notes / known gaps
 
 - Conversation references in Redis never expire (no TTL) — stale entries accumulate over time.
-- `api/messages.js` polyfills `res.header` (Vercel's response object lacks it, but `botbuilder`'s `CloudAdapter.process` requires it) — without this the adapter throws a Zod validation error and the webhook returns 500.
+- `api/messages.js` and `api/notify.js` polyfill `res.header` (Vercel's response object lacks it, but `botbuilder`'s `CloudAdapter.process`/`continueConversationAsync` require it) — without this the adapter throws a Zod validation error and the webhook returns 500.
+- `continueConversation` is deprecated/throws in current `botbuilder` — use `continueConversationAsync(MicrosoftAppId, ref, logic)` instead.
+- If the Azure Bot resource's "Type of App" is Single Tenant, the App Registration's "Supported account types" must also be single-tenant, and `MicrosoftAppTenantId` must be set — otherwise you get `AADSTS...invalid_client` or a 401 from the Bot Framework connector when sending activities.
+- `MicrosoftAppPassword` must be the secret **Value**, not the **Secret ID** (both are shown in Certificates & secrets — easy to copy the wrong one).
+- `/api/simulate` is gated with the same `NOTIFY_SECRET` bearer check as `/api/notify` — don't expose it without auth in production, it can trigger fake conversations and read/write Redis.
