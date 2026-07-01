@@ -1,0 +1,35 @@
+{
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.17/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.17",
+  "version": "1.0.0",
+  "id": "fde236d9-e0c9-4469-82af-1bc94ea20f76",
+  "developer": {
+    "name": "Lunaphore",
+    "websiteUrl": "https://p-lunaphore-teams-bot-two.vercel.app",
+    "privacyUrl": "https://p-lunaphore-teams-bot-two.vercel.app/privacy",
+    "termsOfUseUrl": "https://p-lunaphore-teams-bot-two.vercel.app/terms"
+  },
+  "name": {
+    "short": "Lunaphore Bot",
+    "full": "Lunaphore Teams Bot"
+  },
+  "description": {
+    "short": "AI assistant bot for Teams",
+    "full": "Relays Teams messages to an AI agent (via Make.com) and delivers responses back into the conversation."
+  },
+  "icons": {
+    "outline": "outline.png",
+    "color": "color.png"
+  },
+  "accentColor": "#5B2C83",
+  "bots": [
+    {
+      "botId": "fde236d9-e0c9-4469-82af-1bc94ea20f76",
+      "scopes": ["personal", "team", "groupchat"],
+      "supportsFiles": false,
+      "isNotificationOnly": false
+    }
+  ],
+  "permissions": ["identity", "messageTeamMembers"],
+  "validDomains": ["p-lunaphore-teams-bot-two.vercel.app"]
+}
