@@ -4,6 +4,8 @@ import { TeamsBot } from '../lib/bot.js';
 const auth = new ConfigurationBotFrameworkAuthentication({
   MicrosoftAppId: process.env.MicrosoftAppId,
   MicrosoftAppPassword: process.env.MicrosoftAppPassword,
+  MicrosoftAppType: 'SingleTenant',
+  MicrosoftAppTenantId: process.env.MicrosoftAppTenantId,
 });
 const adapter = new CloudAdapter(auth);
 
