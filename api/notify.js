@@ -39,7 +39,7 @@ export default async function handler(req, res) {
     });
   }
 
-  await adapter.continueConversation(ref, async (context) => {
+  await adapter.continueConversationAsync(process.env.MicrosoftAppId, ref, async (context) => {
     await context.sendActivity(message);
   });
 
