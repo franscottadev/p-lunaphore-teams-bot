@@ -16,5 +16,6 @@ const bot = new TeamsBot();
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
+  if (!res.header) res.header = res.setHeader.bind(res);
   await adapter.process(req, res, (context) => bot.run(context));
 }

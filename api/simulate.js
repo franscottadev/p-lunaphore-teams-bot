@@ -10,6 +10,7 @@ function buildFakeRef(userId, userName) {
     conversation: { id: `sim-conv-${userId}`, isGroup: false, tenantId: 'sim-tenant' },
     channelId: 'msteams',
     serviceUrl: 'https://smba.trafficmanager.net/teams/',
+    _simulated: true,
   };
 }
 

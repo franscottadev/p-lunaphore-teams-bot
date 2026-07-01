@@ -30,6 +30,15 @@ export default async function handler(req, res) {
     return res.status(404).json({ error: 'No conversation reference found — user must message the bot first' });
   }
 
+  // Simulated ref — skip real Teams delivery, return what would be sent
+  if (ref._simulated) {
+    return res.status(200).json({
+      ok: true,
+      simulated: true,
+      wouldSendToTeams: { user: lookupKey, message },
+    });
+  }
+
   await adapter.continueConversation(ref, async (context) => {
     await context.sendActivity(message);
   });
