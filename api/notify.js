@@ -1,19 +1,20 @@
 import { CloudAdapter, ConfigurationBotFrameworkAuthentication } from 'botbuilder';
 import { getConversationReference } from '../lib/storage.js';
+import { config } from '../lib/config.js';
+import { requireSecret } from '../lib/auth.js';
 
 const auth = new ConfigurationBotFrameworkAuthentication({
-  MicrosoftAppId: process.env.MicrosoftAppId,
-  MicrosoftAppPassword: process.env.MicrosoftAppPassword,
+  MicrosoftAppId: config.MicrosoftAppId,
+  MicrosoftAppPassword: config.MicrosoftAppPassword,
   MicrosoftAppType: 'SingleTenant',
-  MicrosoftAppTenantId: process.env.MicrosoftAppTenantId,
+  MicrosoftAppTenantId: config.MicrosoftAppTenantId,
 });
 const adapter = new CloudAdapter(auth);
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
 
-  const token = (req.headers['authorization'] ?? '').replace('Bearer ', '');
-  if (!token || token !== process.env.NOTIFY_SECRET) {
+  if (!requireSecret(req)) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
@@ -41,7 +42,7 @@ export default async function handler(req, res) {
     });
   }
 
-  await adapter.continueConversationAsync(process.env.MicrosoftAppId, ref, async (context) => {
+  await adapter.continueConversationAsync(config.MicrosoftAppId, ref, async (context) => {
     await context.sendActivity(message);
   });
 

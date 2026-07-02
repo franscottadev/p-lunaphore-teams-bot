@@ -1,5 +1,6 @@
 import { saveConversationReference, getConversationReference } from '../lib/storage.js';
 import { forwardToMake } from '../lib/makeClient.js';
+import { requireSecret } from '../lib/auth.js';
 
 // Fake conversation reference — mimics what Teams would provide
 function buildFakeRef(userId, userName) {
@@ -15,8 +16,11 @@ function buildFakeRef(userId, userName) {
 }
 
 export default async function handler(req, res) {
-  const token = (req.headers['authorization'] ?? '').replace('Bearer ', '');
-  if (!token || token !== process.env.NOTIFY_SECRET) {
+  if (process.env.VERCEL_ENV === 'production' || process.env.NODE_ENV === 'production') {
+    return res.status(404).end();
+  }
+
+  if (!requireSecret(req)) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 

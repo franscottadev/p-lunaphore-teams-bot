@@ -1,11 +1,12 @@
 import { CloudAdapter, ConfigurationBotFrameworkAuthentication } from 'botbuilder';
 import { TeamsBot } from '../lib/bot.js';
+import { config } from '../lib/config.js';
 
 const auth = new ConfigurationBotFrameworkAuthentication({
-  MicrosoftAppId: process.env.MicrosoftAppId,
-  MicrosoftAppPassword: process.env.MicrosoftAppPassword,
+  MicrosoftAppId: config.MicrosoftAppId,
+  MicrosoftAppPassword: config.MicrosoftAppPassword,
   MicrosoftAppType: 'SingleTenant',
-  MicrosoftAppTenantId: process.env.MicrosoftAppTenantId,
+  MicrosoftAppTenantId: config.MicrosoftAppTenantId,
 });
 const adapter = new CloudAdapter(auth);
 
